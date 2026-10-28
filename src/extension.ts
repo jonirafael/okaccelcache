@@ -1,8 +1,9 @@
 import { randomUUID } from 'node:crypto'
 
-import { Prisma } from '@prisma/client'
+import type { Prisma } from '@prisma/client'
 
 import { DEFAULT_MAX_ENTRIES, DEFAULT_PREFIX } from './constants'
+import { getPrismaRuntime } from './prisma-runtime'
 import { cacheableModelMethods } from './delegate'
 import { createOperationHandler } from './handler'
 import { createMemoryStore } from './stores/memory'
@@ -33,7 +34,9 @@ export function withOkAccelCache(options: OkAccelCacheOptions = {}) {
 
   const handler = createOperationHandler({ store, now, keyPrefix, onBackgroundError, onStoreError })
 
-  return Prisma.defineExtension((client) => {
+  const defineExtension = getPrismaRuntime().defineExtension as typeof Prisma.defineExtension
+
+  return defineExtension((client) => {
     const queried = client.$extends({
       name: 'okaccelcache',
       query: {

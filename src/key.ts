@@ -1,8 +1,7 @@
 import { createHash } from 'node:crypto'
 
-import { Prisma } from '@prisma/client'
-
 import { OkAccelCacheError } from './errors'
+import { getPrismaRuntime } from './prisma-runtime'
 
 /**
  * Canonical JSON for cache keys.
@@ -59,7 +58,7 @@ function stringifyObject(value: object, seen: Set<object>): string {
     if (value instanceof Uint8Array) {
       return JSON.stringify({ $bytes: Buffer.from(value).toString('base64') })
     }
-    if (typeof Prisma.Decimal === 'function' && value instanceof Prisma.Decimal) {
+    if (value instanceof getPrismaRuntime().Decimal) {
       return JSON.stringify({ $decimal: value.toString() })
     }
     if (Array.isArray(value)) {
@@ -80,9 +79,10 @@ function stringifyObject(value: object, seen: Set<object>): string {
 }
 
 function sentinelName(value: object): string | undefined {
-  if (value === Prisma.DbNull) return 'DbNull'
-  if (value === Prisma.JsonNull) return 'JsonNull'
-  if (value === Prisma.AnyNull) return 'AnyNull'
+  const prisma = getPrismaRuntime()
+  if (value === prisma.DbNull) return 'DbNull'
+  if (value === prisma.JsonNull) return 'JsonNull'
+  if (value === prisma.AnyNull) return 'AnyNull'
   return undefined
 }
 

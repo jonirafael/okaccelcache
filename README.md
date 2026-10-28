@@ -158,15 +158,38 @@ If a store read or write throws, the query still hits the database (`onStoreErro
 - Tag characters: alphanumeric or `_`, length 1–64, from that same reference.
 - Unknown `cacheStrategy` fields are rejected so a typo such as `TTL` does not silently disable caching.
 
+## Compatibility
+
+Runtime tests in this repo, with Redis on `127.0.0.1:6379` (those cases ran; they were not skipped):
+
+| | Prisma ORM 6.19.3 | Prisma ORM 7.10.1 |
+| --- | --- | --- |
+| Client | `prisma-client-js`, SQLite through Prisma's built-in driver | `prisma-client` generator (`test/prisma7/generated/prisma`) and `@prisma/adapter-better-sqlite3` 7.10.1 |
+| What ran | Vitest: 13 unit, 16 client integration, 2 Redis, plus `tsc` | Vitest: 16 client integration and 2 Redis, against the built package |
+| Passthrough without `cacheStrategy` | yes | yes |
+| TTL expiry | yes | yes |
+| SWR stale value, then refresh | yes | yes |
+| Tag invalidation and `invalidateAll` (memory) | yes | yes |
+| Tag invalidation across two ioredis connections and two node-redis connections | yes | yes |
+| Interactive and batch `$transaction` not cached | yes | yes |
+| Dates, bigints, bytes, decimals, JSON round-trip | yes | yes |
+| Relation fluent call (`findUnique().posts()`) | yes, at runtime | yes, at runtime |
+
+Prisma 7's SQLite docs use `@prisma/adapter-better-sqlite3` for Node. `@prisma/adapter-libsql` is the Bun and Turso adapter and was not part of this run. Postgres, MySQL, and D1 adapters were not run. Prisma ORM 8 was not run.
+
+The extension loads `defineExtension` and the JSON null sentinels from `@prisma/client/runtime/library` on Prisma 6 and from `@prisma/client/runtime/client` on Prisma 7. That works when the project generates the client with the `prisma-client` output path and does not also generate `.prisma/client`.
+
 ## Development
 
 ```bash
 npm test
+npm run test:prisma6
+npm run test:prisma7
 npm run build
 npm pack --dry-run
 ```
 
-`npm test` generates the SQLite client under `test/prisma`, runs Vitest, and typechecks. That suite uses Prisma Client 6.19.3. The same `cacheStrategy` call shape also typechecks against a generated Prisma Client 7.10.1; Prisma 7 still needs its own driver adapter at runtime, and this package does not configure one. Redis tests run when Redis is reachable at `127.0.0.1:6379` and skip when it is not. A copy-paste CI workflow lives at `docs/ci-workflow.yml` (this repo does not install it under `.github/workflows`).
+`npm test` runs the Prisma 6 suite, the typecheck, then the Prisma 7 suite. The Prisma 7 app lives in `test/prisma7` with its own `package.json`. It is not part of the published tarball (`files` is `dist`, `README.md`, and `LICENSE`). A copy-paste CI workflow lives at `docs/ci-workflow.yml`.
 
 ## License
 

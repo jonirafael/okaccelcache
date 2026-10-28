@@ -1,6 +1,5 @@
-import { Prisma } from '@prisma/client'
-
 import { OkAccelCacheError } from './errors'
+import { getPrismaRuntime } from './prisma-runtime'
 
 const MARK = '~okac'
 
@@ -31,9 +30,10 @@ function tag(value: unknown): unknown {
   if (typeof value === 'bigint') return mark({ [MARK]: 'bigint', v: value.toString() })
   if (typeof value !== 'object') return value
 
-  if (value === Prisma.DbNull) return mark({ [MARK]: 'dbnull' })
-  if (value === Prisma.JsonNull) return mark({ [MARK]: 'jsonnull' })
-  if (value === Prisma.AnyNull) return mark({ [MARK]: 'anynull' })
+  const prisma = getPrismaRuntime()
+  if (value === prisma.DbNull) return mark({ [MARK]: 'dbnull' })
+  if (value === prisma.JsonNull) return mark({ [MARK]: 'jsonnull' })
+  if (value === prisma.AnyNull) return mark({ [MARK]: 'anynull' })
   if (value instanceof Date) {
     if (Number.isNaN(value.getTime())) {
       throw new OkAccelCacheError('INVALID_CACHE_STRATEGY', 'Cannot cache an invalid Date.')
@@ -46,7 +46,8 @@ function tag(value: unknown): unknown {
   if (value instanceof Uint8Array) {
     return mark({ [MARK]: 'bytes', v: Buffer.from(value).toString('base64') })
   }
-  if (typeof Prisma.Decimal === 'function' && value instanceof Prisma.Decimal) {
+  const { Decimal } = getPrismaRuntime()
+  if (value instanceof Decimal) {
     return mark({ [MARK]: 'decimal', v: value.toString() })
   }
   if (Array.isArray(value)) return value.map((item) => tag(item))
@@ -90,14 +91,13 @@ function revive(marker: string, raw: unknown): unknown {
     case 'bytes':
       return Uint8Array.from(Buffer.from(String(raw), 'base64'))
     case 'decimal':
-      if (typeof Prisma.Decimal !== 'function') return String(raw)
-      return new Prisma.Decimal(String(raw))
+      return new (getPrismaRuntime().Decimal)(String(raw))
     case 'dbnull':
-      return Prisma.DbNull
+      return getPrismaRuntime().DbNull
     case 'jsonnull':
-      return Prisma.JsonNull
+      return getPrismaRuntime().JsonNull
     case 'anynull':
-      return Prisma.AnyNull
+      return getPrismaRuntime().AnyNull
     default:
       return { [MARK]: marker, v: raw }
   }

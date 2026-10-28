@@ -7,3 +7,9 @@ test/prisma/*.db
 test/prisma/*.db-journal
 test/prisma/*.db-shm
 test/prisma/*.db-wal
+test/prisma7/node_modules/
+test/prisma7/generated/
+test/prisma7/*.db
+test/prisma7/*.db-journal
+test/prisma7/*.tgz
+test/prisma7/dev.db*

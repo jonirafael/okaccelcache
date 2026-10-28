@@ -1,7 +1,8 @@
-import { Prisma } from '@prisma/client'
+import type { Prisma } from '@prisma/client'
 
 import { INFO_FLAG } from './constants'
 import { OkAccelCacheError } from './errors'
+import { getPrismaRuntime } from './prisma-runtime'
 import type { AccelerateInfo, AcceleratePromise, CacheStrategy } from './types'
 
 type OperationArgs = { cacheStrategy?: CacheStrategy } | undefined
@@ -102,7 +103,7 @@ interface ParentContext {
 }
 
 function forward<T>(context: object, operation: string, args: OperationArgs): AcceleratePromise<T> {
-  const ctx = Prisma.getExtensionContext(context) as ParentContext
+  const ctx = getPrismaRuntime().getExtensionContext(context) as ParentContext
   const modelName = ctx.$name
   const jsName = modelName ? modelName.charAt(0).toLowerCase() + modelName.slice(1) : undefined
   const delegate = modelName ? (ctx.$parent?.[modelName] ?? (jsName ? ctx.$parent?.[jsName] : undefined)) : undefined
