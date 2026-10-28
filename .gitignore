@@ -13,3 +13,5 @@ test/prisma7/*.db
 test/prisma7/*.db-journal
 test/prisma7/*.tgz
 test/prisma7/dev.db*
+test/prisma6-pg/node_modules/
+test/generated/

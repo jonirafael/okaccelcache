@@ -31,7 +31,8 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: npm
       - run: npm ci
-      # npm test runs the Prisma 6 suite, then installs test/prisma7 and runs the Prisma 7 suite.
+      # npm test runs Prisma 6 SQLite, then Prisma 7 (SQLite + Postgres) and Prisma 6 Postgres.
+      # Postgres suites skip when the database is unreachable.
       - run: npm test
       - run: npm run build
       - run: npm pack --dry-run

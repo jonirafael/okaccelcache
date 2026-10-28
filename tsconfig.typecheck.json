@@ -15,5 +15,5 @@
     "rootDir": "."
   },
   "include": ["src", "test"],
-  "exclude": ["test/prisma7"]
+  "exclude": ["test/prisma7", "test/prisma6-pg"]
 }

@@ -160,36 +160,33 @@ If a store read or write throws, the query still hits the database (`onStoreErro
 
 ## Compatibility
 
-Runtime tests in this repo, with Redis on `127.0.0.1:6379` (those cases ran; they were not skipped):
+Verified here against PostgreSQL 16.15 (`127.0.0.1`) and Redis (`127.0.0.1:6379`). Redis cases ran. Postgres cases ran against real servers, not a mock. If `DATABASE_URL` is a `postgres://` URL, both Postgres suites use it. If it is unset, Prisma 6 tries `postgresql://postgres:postgres@127.0.0.1:5432/okaccelcache6` and Prisma 7 tries `.../okaccelcache7`. If that connection fails, those tests skip and the process still exits 0.
 
-| | Prisma ORM 6.19.3 | Prisma ORM 7.10.1 |
+| Suite | How it connects | Tests that ran |
 | --- | --- | --- |
-| Client | `prisma-client-js`, SQLite through Prisma's built-in driver | `prisma-client` generator (`test/prisma7/generated/prisma`) and `@prisma/adapter-better-sqlite3` 7.10.1 |
-| What ran | Vitest: 13 unit, 16 client integration, 2 Redis, plus `tsc` | Vitest: 16 client integration and 2 Redis, against the built package |
-| Passthrough without `cacheStrategy` | yes | yes |
-| TTL expiry | yes | yes |
-| SWR stale value, then refresh | yes | yes |
-| Tag invalidation and `invalidateAll` (memory) | yes | yes |
-| Tag invalidation across two ioredis connections and two node-redis connections | yes | yes |
-| Interactive and batch `$transaction` not cached | yes | yes |
-| Dates, bigints, bytes, decimals, JSON round-trip | yes | yes |
-| Relation fluent call (`findUnique().posts()`) | yes, at runtime | yes, at runtime |
+| Prisma ORM 6.19.3, SQLite | `prisma-client-js`, built-in driver | 31: 13 unit, 16 client, 2 Redis, plus `tsc` |
+| Prisma ORM 6.19.3, PostgreSQL | `prisma-client-js`, built-in query engine (not `@prisma/adapter-pg`; that package is Prisma 7) | 18: 16 client, 2 Redis |
+| Prisma ORM 7.10.1, SQLite | `prisma-client` generator, `@prisma/adapter-better-sqlite3` 7.10.1 | 18: 16 client, 2 Redis |
+| Prisma ORM 7.10.1, PostgreSQL | `prisma-client` generator, `@prisma/adapter-pg` 7.10.1 and `pg` 8.16.3 | 18: 16 client, 2 Redis |
 
-Prisma 7's SQLite docs use `@prisma/adapter-better-sqlite3` for Node. `@prisma/adapter-libsql` is the Bun and Turso adapter and was not part of this run. Postgres, MySQL, and D1 adapters were not run. Prisma ORM 8 was not run.
+On every database suite above, these passed: passthrough without `cacheStrategy`, TTL expiry, SWR serving a stale row then refreshing, memory tag invalidation, `invalidateAll`, tag invalidation across two ioredis connections and two node-redis connections, and both interactive and batch `$transaction` reads staying uncached. The same suites also covered dates, bigints, bytes, decimals, JSON, a cached `null`, `ttl: 0` not deleting an existing entry, and a runtime fluent `findUnique().posts()` call.
 
-The extension loads `defineExtension` and the JSON null sentinels from `@prisma/client/runtime/library` on Prisma 6 and from `@prisma/client/runtime/client` on Prisma 7. That works when the project generates the client with the `prisma-client` output path and does not also generate `.prisma/client`.
+Not run: `@prisma/adapter-libsql`, D1, MySQL, and Prisma ORM 8.
+
+The extension loads `defineExtension` and the JSON null sentinels from `@prisma/client/runtime/library` on Prisma 6 and from `@prisma/client/runtime/client` on Prisma 7.
 
 ## Development
 
 ```bash
 npm test
 npm run test:prisma6
+npm run test:prisma6-pg
 npm run test:prisma7
 npm run build
 npm pack --dry-run
 ```
 
-`npm test` runs the Prisma 6 suite, the typecheck, then the Prisma 7 suite. The Prisma 7 app lives in `test/prisma7` with its own `package.json`. It is not part of the published tarball (`files` is `dist`, `README.md`, and `LICENSE`). A copy-paste CI workflow lives at `docs/ci-workflow.yml`.
+`npm test` runs the Prisma 6 SQLite suite, the typecheck, the Prisma 7 SQLite and Postgres suites, then the Prisma 6 Postgres suite. `test/prisma7` and `test/prisma6-pg` have their own `package.json` files and are not in the published tarball (`files` is `dist`, `README.md`, and `LICENSE`). A copy-paste CI workflow lives at `docs/ci-workflow.yml`.
 
 ## License
 

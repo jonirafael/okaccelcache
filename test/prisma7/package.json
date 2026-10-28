@@ -9,12 +9,15 @@
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "7.10.1",
+    "@prisma/adapter-pg": "7.10.1",
     "@prisma/client": "7.10.1",
     "better-sqlite3": "13.0.3",
     "ioredis": "^5.8.2",
+    "pg": "8.16.3",
     "redis": "^4.7.1"
   },
   "devDependencies": {
+    "@types/pg": "^8.15.5",
     "prisma": "7.10.1",
     "vitest": "^3.2.4"
   }

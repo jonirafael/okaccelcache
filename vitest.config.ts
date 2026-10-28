@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['test/**/*.test.ts'],
-    exclude: ['test/prisma7/**'],
+    exclude: ['test/prisma7/**', 'test/prisma6-pg/**'],
     fileParallelism: false,
     testTimeout: 30_000,
     hookTimeout: 30_000,

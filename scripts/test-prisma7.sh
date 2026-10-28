@@ -22,4 +22,5 @@ tar -xzf okaccelcache-0.1.0.tgz -C node_modules/okaccelcache --strip-components=
 rm -f okaccelcache-0.1.0.tgz
 
 npx prisma generate
+DATABASE_URL="${DATABASE_URL:-postgresql://postgres:postgres@127.0.0.1:5432/okaccelcache7}" npx prisma generate --config prisma.postgres.config.ts
 npx vitest run

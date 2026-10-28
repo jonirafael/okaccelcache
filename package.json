@@ -46,8 +46,9 @@
   "scripts": {
     "build": "tsup",
     "pretest": "prisma generate --schema test/prisma/schema.prisma",
-    "test": "vitest run && tsc -p tsconfig.typecheck.json --noEmit && bash scripts/test-prisma7.sh",
+    "test": "vitest run && tsc -p tsconfig.typecheck.json --noEmit && bash scripts/test-prisma7.sh && bash scripts/test-prisma6-pg.sh",
     "test:prisma6": "vitest run && tsc -p tsconfig.typecheck.json --noEmit",
+    "test:prisma6-pg": "bash scripts/test-prisma6-pg.sh",
     "test:prisma7": "bash scripts/test-prisma7.sh",
     "typecheck": "tsc -p tsconfig.typecheck.json --noEmit",
     "prepack": "npm run build"
