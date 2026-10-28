@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.tgz
+coverage/
+.DS_Store
+test/prisma/*.db
+test/prisma/*.db-journal
+test/prisma/*.db-shm
+test/prisma/*.db-wal
