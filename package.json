@@ -1,0 +1,79 @@
+{
+  "name": "okaccelcache",
+  "version": "0.1.0",
+  "description": "Preview Prisma Client extension that keeps Accelerate-style cacheStrategy (ttl, swr, tags) on Prisma ORM 6 and 7. Not affiliated with Prisma.",
+  "type": "module",
+  "license": "MIT",
+  "author": "jonirafael",
+  "keywords": [
+    "prisma",
+    "prisma-client",
+    "prisma-extension",
+    "cache",
+    "accelerate",
+    "cacheStrategy",
+    "redis",
+    "swr",
+    "ttl"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonirafael/okaccelcache.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jonirafael/okaccelcache/issues"
+  },
+  "homepage": "https://github.com/jonirafael/okaccelcache#readme",
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "pretest": "prisma generate --schema test/prisma/schema.prisma",
+    "test": "vitest run && tsc -p tsconfig.typecheck.json --noEmit && bash scripts/test-prisma7.sh && bash scripts/test-prisma6-pg.sh",
+    "test:prisma6": "vitest run && tsc -p tsconfig.typecheck.json --noEmit",
+    "test:prisma6-pg": "bash scripts/test-prisma6-pg.sh",
+    "test:prisma7": "bash scripts/test-prisma7.sh",
+    "typecheck": "tsc -p tsconfig.typecheck.json --noEmit",
+    "prepack": "npm run build"
+  },
+  "peerDependencies": {
+    "@prisma/client": ">=6 <8",
+    "ioredis": ">=5",
+    "redis": ">=4"
+  },
+  "peerDependenciesMeta": {
+    "ioredis": {
+      "optional": true
+    },
+    "redis": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@prisma/client": "6.19.3",
+    "@types/node": "^22.15.0",
+    "ioredis": "^5.8.2",
+    "prisma": "6.19.3",
+    "redis": "^4.7.1",
+    "tsup": "^8.5.0",
+    "typescript": "~5.8.3",
+    "vitest": "^3.2.4"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "okaccelcache-prisma6-postgres-tests",
+  "private": true,
+  "type": "module",
+  "description": "Prisma ORM 6 runtime suite against PostgreSQL. Not published.",
+  "scripts": {
+    "generate": "prisma generate",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.3",
+    "ioredis": "^5.8.2",
+    "redis": "^4.7.1"
+  },
+  "devDependencies": {
+    "prisma": "6.19.3",
+    "vitest": "^3.2.4"
+  }
+}
